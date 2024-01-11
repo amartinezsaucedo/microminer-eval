@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "microminer-eval"
+version = "0.1.0"
+description = ""
+authors = ["Ana Martínez Saucedo <anmartinez@uade.edu.ar>"]
+readme = "README.md"
+packages = [{include = "microminer_eval"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+transformers = "^4.36.2"
+torch = "^2.1.2"
+pandas = "^2.1.4"
+joblib = "^1.3.2"
+numpy = "^1.26.3"
+scikit-learn = "1.2.2"
+scipy = "^1.11.4"
+cdlib = "^0.3.0"
+networkx = "^3.2.1"
+nltk = "^3.8.1"
+gensim = "^4.3.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
