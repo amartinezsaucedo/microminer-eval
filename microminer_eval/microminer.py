@@ -68,11 +68,17 @@ class MicroMiner:
         return self.create_service_graph()
 
     def _identify_type_service(self):
+        service_types_to_remove = []
         for service_type in self._typed_services.keys():
             typed_services = TypeService(self._classes_data[service_type], self._distances)
-            communities = typed_services.get_communities(self._resolution)
-            communities = typed_services.fine_tune_communities(communities)
-            self._typed_services[service_type] = communities
+            if not typed_services.is_graph_empty():
+                communities = typed_services.get_communities(self._resolution)
+                communities = typed_services.fine_tune_communities(communities)
+                self._typed_services[service_type] = communities
+            else:
+                service_types_to_remove.append(service_type)
+        for service_type_to_remove in service_types_to_remove:
+            self._typed_services.pop(service_type_to_remove, None)
 
     def create_service_graph(self):
         services = dict()

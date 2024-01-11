@@ -19,6 +19,9 @@ class TypeService:
             if distance[0] in classes and distance[1] in classes:
                 self._graph.add_edge(distance[0], distance[1], weight=distance[2])
 
+    def is_graph_empty(self) -> bool:
+        return self._graph.size() == 0
+
     def get_communities(self, resolution: float) -> list:
         return algorithms.louvain(self._graph, weight='weight', resolution=resolution).communities
 
