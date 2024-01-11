@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 from microminer_eval.microminer import MicroMiner
+from microminer_eval.preprocessing.preprocess import preprocess
 
 logging.basicConfig(level=logging.INFO)
 parser = argparse.ArgumentParser()
@@ -19,6 +20,7 @@ project_name = arguments.project_name
 project_path = arguments.project_path
 model_path = arguments.model_path
 
+preprocess(project_path, project_name, model_path)
 microminer = MicroMiner(project_path, project_name, model_path)
 """Smaller resolutions recover smaller clusters and therefore a larger number of them, while, conversely, 
 larger values recover clusters containing more data points. If resolution is less than 1, the algorithm favors larger 
