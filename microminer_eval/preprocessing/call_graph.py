@@ -1,6 +1,7 @@
 import logging
 import xml.etree.ElementTree as ElementTree
 from pandas import DataFrame
+import networkx as nx
 
 
 class CallGraph:
@@ -22,6 +23,13 @@ class CallGraph:
         self._project_name = project_name
         self._root = ElementTree.parse(f"{project_path}/{project_name}_kdm.xmi")
         logging.info("KDM parsed")
+
+    def as_nx_graph(self):
+        g = None
+        if self._graph is not None: # Build a graph from the dataframe
+            df = self._graph.copy().reset_index() # The original dataframe has the from and to columns as indices
+            g = nx.from_pandas_edgelist(df, source='from', target='to', create_using=nx.Graph(), edge_attr='weight')
+        return g
 
     def set_weights(self, weights: dict):
         self._weights = weights

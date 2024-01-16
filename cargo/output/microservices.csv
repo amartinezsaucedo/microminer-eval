@@ -1,0 +1,21 @@
+,ID,Files
+0,0,"['CargoRepositoryJPA.java', 'TrackingId.java', 'CargoHandledConsumer.java', 'BookingServiceFacadeImpl.java', 'ItineraryCandidateDTOAssembler.java', 'RoutingStatus.java', 'CargoRoutingDTOAssembler.java', 'BookingServiceFacade.java', 'RouteCandidateDTO.java', 'CargoFactory.java', 'CargoRepository.java', 'CargoTrackingController.java', 'Cargo.java', 'Itinerary.java', 'TrackCommandValidator.java', 'CargoTrackingRestService.java', 'HandlingHistory.java', 'InterfacesApplicationContext.java', 'RegistrationCommand.java', 'CargoAdminController.java', 'RouteAssignmentCommand.java', 'LegDTO.java', 'CargoRoutingDTO.java']"
+1,1,"['BookingServiceImpl.java', 'BookingService.java']"
+2,2,"['LocationRepository.java', 'LocationRepositoryJPA.java']"
+3,3,"['SampleLocations.java', 'UnLocode.java', 'Location.java', 'GraphTraversalService.java', 'RoutingService.java', 'ExternalRoutingService.java']"
+4,4,"['Cargo.java', 'Itinerary.java', 'HandlingEventRepository.java', 'SampleDataGenerator.java', 'DateUtils.java', 'RouteSpecification.java', 'Leg.java', 'LegDTO.java', 'CargoRoutingDTO.java', 'CargoTrackingDTOConverter.java', 'HandlingEvent.java', 'CargoTrackingViewAdapter.java']"
+5,5,"['HandlingEventRepository.java', 'SampleDataGenerator.java', 'DateUtils.java', 'RouteSpecification.java', 'Leg.java', 'Cargo.java', 'Itinerary.java', 'CarrierMovement.java', 'Voyage.java', 'Schedule.java', 'HandlingReportParser.java', 'VoyageNumber.java', 'HandlingEventRepositoryJPA.java', 'SampleVoyages.java']"
+6,6,"['GraphTraversalService.java', 'RoutingService.java', 'ExternalRoutingService.java', 'TransitPath.java', 'GraphTraversalServiceImpl.java']"
+7,7,"['Delivery.java', 'HandlingActivity.java', 'CargoTrackingDTOConverter.java', 'HandlingEvent.java', 'CargoTrackingViewAdapter.java']"
+8,8,"['TrackCommandValidator.java', 'CargoTrackingRestService.java', 'HandlingHistory.java', 'InterfacesApplicationContext.java', 'CargoFactory.java', 'CargoRepository.java', 'CargoTrackingController.java']"
+9,9,"['ApplicationEvents.java', 'CargoInspectionService.java', 'CargoInspectionServiceImpl.java', 'InfrastructureMessagingJmsConfig.java', 'JmsApplicationEventsImpl.java', 'SimpleLoggingConsumer.java']"
+10,10,"['CarrierMovement.java', 'Voyage.java', 'Schedule.java', 'HandlingReportParser.java', 'VoyageNumber.java', 'HandlingEventRepository.java', 'SampleDataGenerator.java', 'DateUtils.java', 'RouteSpecification.java', 'Leg.java', 'HandlingReport.java', 'SampleVoyages.java']"
+11,11,"['CargoTrackingDTOConverter.java', 'HandlingEvent.java', 'CargoTrackingViewAdapter.java', 'Cargo.java', 'Itinerary.java', 'Delivery.java', 'HandlingActivity.java', 'CargoTrackingDTO.java']"
+12,12,['TrackCommand.java']
+13,13,"['HandlingEventService.java', 'DDDSampleApplicationContext.java', 'HandlingEventServiceImpl.java']"
+14,14,"['CannotCreateHandlingEventException.java', 'HandlingEventFactory.java', 'UnknownLocationException.java', 'UnknownCargoException.java', 'UnknownVoyageException.java']"
+15,15,"['GraphDAO.java', 'GraphDAOStub.java']"
+16,16,"['HandlingEventRegistrationAttempt.java', 'HandlingEventRegistrationAttemptConsumer.java', 'UploadDirectoryScanner.java', 'InfrastructureMessagingJmsConfig.java', 'JmsApplicationEventsImpl.java', 'SimpleLoggingConsumer.java']"
+17,17,"['HandlingReportServiceImpl.java', 'HandlingReportService.java']"
+18,18,"['SimpleLoggingConsumer.java', 'InfrastructureMessagingJmsConfig.java', 'JmsApplicationEventsImpl.java']"
+19,19,['ValueObjectSupport.java']
