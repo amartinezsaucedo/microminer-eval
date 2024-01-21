@@ -94,9 +94,9 @@ save_results(results, filename+'.tar.gz')
 # outcomes_df = pd.DataFrame(outcomes)
 
 # For Sobol analysis (later on)
-# uncertainties_problem = get_SALib_problem(model.uncertainties)
+uncertainties_problem = get_SALib_problem(model.uncertainties)
 with open(filename+'_model.pkl', 'wb') as output:
-    pickle.dump(model, output)
+    pickle.dump(uncertainties_problem, output)
 with open(filename+'_partitions.pkl', 'wb') as output:
     pickle.dump(all_partitions, output)
 with open(filename+'_graph.pkl', 'wb') as output:
