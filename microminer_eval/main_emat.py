@@ -68,7 +68,14 @@ def model_function(resolution, alpha, mfuzzy, microservice_threshold):
     n_clustering = NodeClustering(communities=list(partitions.values()), graph=nx_call_graph, overlap=True)
     modularity = evaluation.modularity_overlap(nx_call_graph, n_clustering, weight='weight')
 
-    return {'n_partitions': len(partitions), 'modularity': modularity.score} # Number of clusters and modularity as metrics
+    reference_class_set = set(list(nx_call_graph.nodes()))
+    partitions_class_set = set([x for xs in partitions.values() for x in xs])
+    diff_set = reference_class_set.difference(partitions_class_set)
+
+    return {'n_partitions': len(partitions), 
+            'modularity': modularity.score, # Number of clusters/partitions and modularity index as metrics
+            'noise_classes': len(diff_set) # Number of classes not included in any partition/cluster
+            } 
 
 logging.info("Starting evaluation of grid of parameters...")
 
@@ -84,7 +91,7 @@ model.uncertainties = [ IntegerParameter('resolution', 1, 100),
 
 #specify outcomes
 model.outcomes = [ ScalarOutcome('n_partitions'),
-                  ScalarOutcome('modularity') ]
+                  ScalarOutcome('modularity'), ScalarOutcome('noise_classes') ]
 
 n_scenarios = 128
 results = perform_experiments(models=model, scenarios=n_scenarios, uncertainty_sampling=Samplers.SOBOL)
