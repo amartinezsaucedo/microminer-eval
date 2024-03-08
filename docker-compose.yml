@@ -1,0 +1,13 @@
+version: '3'
+services:
+  mme:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mme
+    tty: true
+    volumes:
+      - ./:/app
+
+volumes:
+  mme:
