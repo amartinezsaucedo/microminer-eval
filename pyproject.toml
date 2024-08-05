@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "microminer_eval"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.9, <3.13"
 transformers = "^4.36.2"
 torch = "^2.1.2"
 pandas = "^2.1.4"
@@ -19,6 +19,12 @@ cdlib = "^0.3.0"
 networkx = "^3.2.1"
 nltk = "^3.8.1"
 gensim = "^4.3.2"
+jupyter = "^1.0.0"
+ipykernel = "^6.29.5"
+llama-index = "^0.10.58"
+llama-index-llms-groq = "^0.1.4"
+scikit-learn-extra = "^0.3.0"
+ema-workbench = "^2.5.2"
 
 
 [build-system]
