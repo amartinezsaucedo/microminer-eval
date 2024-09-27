@@ -48,13 +48,31 @@ def convert_to_key(resolution, k):
     return f"resolution_{resolution:.9f}_k_{k}"
 
 
+
+def ned(partitions):
+    ned_sum = 0
+    class_len = 0
+    for cluster in partitions.values():
+        size = len(cluster)
+        class_len += size
+        if 5 <= size <= 20:
+            ned_sum += size
+
+    ned_score = 1
+    if class_len > 0 and ned_sum > 0:
+        ned_score = ned_score - (ned_sum / class_len)
+
+    return round(ned_score, 3)
+
 def model_function(resolution, k):
     partitions = partition({"resolution": resolution, "k_topics": k, "project": project_path})[0][0]
 
     s = convert_to_key(resolution, k)
     all_partitions[s] = partitions  # Store the partitions for later use
     n_clustering = NodeClustering(communities=list(partitions.values()), graph=nx_call_graph, overlap=True)
-    modularity = evaluation.modularity_overlap(nx_call_graph, n_clustering, weight='weight')
+    modularity = evaluation(nx_call_graph, n_clustering, weight='weight')
+    ned_score = ned(partitions)
+    density = evaluation.scaled_density(nx_call_graph, n_clustering)
 
     reference_class_set = set(list(nx_call_graph.nodes()))
     partitions_class_set = set([x for xs in partitions.values() for x in xs])
@@ -62,7 +80,9 @@ def model_function(resolution, k):
 
     return {'n_partitions': float(len(partitions)),
             'modularity': modularity.score,  # Number of clusters/partitions and modularity index as metrics
-            'noise_classes': float(len(diff_set))  # Number of classes not included in any partition/cluster
+            'noise_classes': float(len(diff_set)),  # Number of classes not included in any partition/cluster
+            'ned': ned_score,
+            'density': density.score,
             }
 
 
@@ -75,11 +95,14 @@ model.uncertainties = [RealParameter('resolution', 0.1, 2),
 
 # specify outcomes
 model.outcomes = [ScalarOutcome('n_partitions'),
-                  ScalarOutcome('modularity'), ScalarOutcome('noise_classes')]
+                  ScalarOutcome('modularity'),
+                  ScalarOutcome('ned'),
+                  ScalarOutcome('density'),
+                  ScalarOutcome('noise_classes')]
 
 n_scenarios = 128
 results = perform_experiments(models=model, scenarios=n_scenarios, uncertainty_sampling=Samplers.SOBOL)
-filename = './' + project_path + '/' + project_name + '_' + str(n_scenarios) + 'scenarios_nopolicies_sobol'  # .tar.gz'
+filename = '../' + project_path + '/' + project_name + '_' + str(n_scenarios) + 'scenarios_nopolicies_sobol'  # .tar.gz'
 save_results(results, filename + '.tar.gz')
 # experiments_df, outcomes = results
 # outcomes_df = pd.DataFrame(outcomes)
