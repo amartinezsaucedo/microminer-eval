@@ -70,7 +70,7 @@ def model_function(resolution, k):
     s = convert_to_key(resolution, k)
     all_partitions[s] = partitions  # Store the partitions for later use
     n_clustering = NodeClustering(communities=list(partitions.values()), graph=nx_call_graph, overlap=True)
-    modularity = evaluation(nx_call_graph, n_clustering, weight='weight')
+    modularity = evaluation.newman_girvan_modularity(nx_call_graph, n_clustering)
     ned_score = ned(partitions)
     density = evaluation.scaled_density(nx_call_graph, n_clustering)
 
