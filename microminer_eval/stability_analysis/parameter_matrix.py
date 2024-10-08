@@ -173,7 +173,7 @@ if __name__ == "__main__":
     # Creating labels for the experiments
     exp_labels = []
     for idx, row in experiments_df.iterrows():
-        lb = 'resolution_' + str(row['resolution']) + '_k_' + str(row['k'])
+        lb = f"resolution_{row['resolution']:.9f}_k_{int(row['k'])}"
         exp_labels.append(lb)
     experiments_df.index = exp_labels
     print(experiments_df.head())
