@@ -28,7 +28,7 @@ def compute_omega_index(partition_i, partition_j, graph, distance=False):
 def compute_indices(partitions_dict, graph, distance=False, metric="omega", include_noise=False, checkpoint=None):
     print(metric, checkpoint, len(partitions_dict), graph.number_of_nodes(), include_noise, distance)
 
-    omega_scores = dict() 
+    omega_scores = dict()
     if (checkpoint is not None) and os.path.exists(checkpoint):
         with open(checkpoint, 'rb') as f:
             omega_scores = pickle.load(f) # deserialize the dict
@@ -46,7 +46,7 @@ def compute_indices(partitions_dict, graph, distance=False, metric="omega", incl
             else:
                 partition_i = list(partitions_dict[i].values())
             clustering_i = NodeClustering(communities=partition_i, graph=graph, overlap=True)
-        
+
             for n, j in enumerate(partitions_dict.keys()):
                 if n < m:
                     partition_j = list(partitions_dict[j].values())
@@ -77,12 +77,12 @@ def compute_indices(partitions_dict, graph, distance=False, metric="omega", incl
 
                 if value is not None:
                     omega_scores[i][j] = value
-        
+
             if checkpoint is not None: # Write the whole row
                 with open(checkpoint, 'wb') as f:  # open
                     pickle.dump(omega_scores, f) # serialize the dict
                     f.close()
-    
+
     # Complete the rest of the matrix
     for m, i in enumerate(tqdm(partitions_dict.keys())):
         for n, j in enumerate(partitions_dict.keys()):
@@ -99,45 +99,22 @@ if __name__ == "__main__":
 
     arguments = parser.parse_args()
 
-<<<<<<<< HEAD:microminer_eval/partition_matrix.py
-df = pd.read_csv(f"../results/jpetstore/call_graph.csv").reset_index() # The original dataframe has the from and to columns as indices
-java_graph = nx.from_pandas_edgelist(df, source='from', target='to', create_using=nx.Graph(), edge_attr='weight')
-
-PARTITIONS_FILENAME = "../jpetstore/jpetstore_128scenarios_nopolicies_sobol_partitions.pkl"
-# PARTITIONS_FILENAME = "./cargo/cargo_128scenarios_nopolicies_sobol_partitions.pkl"
-partitions_dict = None
-with open(PARTITIONS_FILENAME, 'rb') as f:
-     partitions_dict = pickle.load(f)
-print("partitions:", len(partitions_dict))
-key_0 = list(partitions_dict.keys())[10]
-print(partitions_dict[key_0])
-========
     project_name = arguments.project_name
     project_path = arguments.project_path
 
     GRAPH_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_graph.pkl"
     java_graph = None
     with open(GRAPH_FILENAME, 'rb') as f:
-         java_graph = pickle.load(f)
->>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/partition_matrix.py
+        java_graph = pickle.load(f)
 
     PARTITIONS_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_partitions.pkl"
     partitions_dict = None
     with open(PARTITIONS_FILENAME, 'rb') as f:
-         partitions_dict = pickle.load(f)
+        partitions_dict = pickle.load(f)
     print("partitions:", len(partitions_dict))
     key_0 = list(partitions_dict.keys())[10]
     print(partitions_dict[key_0])
 
-<<<<<<<< HEAD:microminer_eval/partition_matrix.py
-SIMILARITY_FILENAME = "../jpetstore/jpetstore_omega_scores.csv"
-# SIMILARITY_FILENAME = "./jpetstore/jpetstore_omega_scores_noise.csv"
-# SIMILARITY_FILENAME = "./cargo/cargo_omega_scores.csv"
-
-# SIMILARITY_FILENAME = "./jpetstore/jpetstore_milfk_scores.csv"
-# SIMILARITY_FILENAME = "./jpetstore/jpetstore_mimgh_scores.csv"
-partitions_similarity_df.to_csv(SIMILARITY_FILENAME)
-========
     partitions_similarity_df = compute_indices(partitions_dict, java_graph, metric="omega",
                                                include_noise=False, checkpoint="temporal.pkl")
     print(partitions_similarity_df.shape)
@@ -145,4 +122,3 @@ partitions_similarity_df.to_csv(SIMILARITY_FILENAME)
     SIMILARITY_FILENAME = f"{project_path}/{project_name}_omega_scores.csv"
 
     partitions_similarity_df.to_csv(SIMILARITY_FILENAME)
->>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/partition_matrix.py

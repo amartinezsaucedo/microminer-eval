@@ -1,22 +1,23 @@
 import argparse
 import logging
 
-import numpy as np
+import networkx as nx
+import pandas as pd
 import os
 from timeit import default_timer as timer
 from datetime import timedelta
 
-from microminer_eval.microminer import MicroMiner
-from microminer_eval.preprocessing.preprocess import preprocess
-
-from ema_workbench import IntegerParameter, ScalarOutcome, Model
+from ema_workbench import IntegerParameter, ScalarOutcome, Model, RealParameter
 from ema_workbench import perform_experiments
 from ema_workbench import save_results
 from ema_workbench.em_framework.evaluators import Samplers
 from ema_workbench.em_framework.salib_samplers import get_SALib_problem
+
 from cdlib import evaluation
 from cdlib.classes import NodeClustering
 import pickle
+
+from microminer_eval.algorithm.main import partition
 
 start = timer()
 
@@ -35,27 +36,17 @@ model_path = arguments.model_path
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-call_graph_df = preprocess(project_path, project_name, model_path)  # The call graph is actually a dataframe
-nx_call_graph = call_graph_df.as_nx_graph()
-microminer = MicroMiner(project_path, project_name, model_path)
-"""Smaller resolutions recover smaller clusters and therefore a larger number of them, while, conversely, 
-larger values recover clusters containing more data points. If resolution is less than 1, the algorithm favors larger 
-communities. Greater than 1 favors smaller communities """
-resolution = np.linspace(0, 5, 11)  # MicroMiner default = 0.5
-"""Static relationship weight"""
-alpha = np.linspace(0, 1, 11)  # MicroMiner default = 0.1
-"""Semantic relationship weight. in the case of a system in which components are poorly named, β could be reduced in 
-favour of α to reduce the dependence on the semantic analysis in favour of the static relationships/analysis. """
-beta = 1 - alpha
-m_fuzzy = np.linspace(1, 5, 9)  # MicroMiner default = 3, paper states 2 though
-microservice_threshold = 9  # MicroMiner default = 9, expert defined
+df = pd.read_csv(f"../results/{project_name}/call_graph.csv").reset_index() # The original dataframe has the from and to columns as indices
+nx_call_graph = nx.from_pandas_edgelist(df, source='from', target='to', create_using=nx.Graph(), edge_attr='weight')
+
+
 results = []
 all_partitions = dict()
 
 
-def convert_to_key(resolution, alpha, mfuzzy, microservice_threshold):
-    return 'resolution_' + str(resolution) + '_alpha_' + str(alpha) + '_mfuzzy_' + str(mfuzzy) + '_mthreshold_' + str(
-        microservice_threshold)
+def convert_to_key(resolution, k):
+    return f"resolution_{resolution:.9f}_k_{k}"
+
 
 
 def ned(partitions):
@@ -73,13 +64,10 @@ def ned(partitions):
 
     return round(ned_score, 3)
 
+def model_function(resolution, k):
+    partitions = partition({"resolution": resolution, "k_topics": k, "project": project_path})[0][0]
 
-def model_function(resolution, alpha, mfuzzy, microservice_threshold):
-    beta = 1 - alpha
-    microminer.configure(resolution / 100.0, alpha / 100.0, beta / 100.0, mfuzzy, microservice_threshold)
-    partitions = microminer.partition()  # This is a dictionary with the (overlapping) clusters
-
-    s = convert_to_key(resolution, alpha, mfuzzy, microservice_threshold)
+    s = convert_to_key(resolution, k)
     all_partitions[s] = partitions  # Store the partitions for later use
     n_clustering = NodeClustering(communities=list(partitions.values()), graph=nx_call_graph, overlap=True)
     modularity = evaluation.newman_girvan_modularity(nx_call_graph, n_clustering)
@@ -90,11 +78,11 @@ def model_function(resolution, alpha, mfuzzy, microservice_threshold):
     partitions_class_set = set([x for xs in partitions.values() for x in xs])
     diff_set = reference_class_set.difference(partitions_class_set)
 
-    return {'n_partitions': len(partitions),
+    return {'n_partitions': float(len(partitions)),
             'modularity': modularity.score,  # Number of clusters/partitions and modularity index as metrics
+            'noise_classes': float(len(diff_set)),  # Number of classes not included in any partition/cluster
             'ned': ned_score,
             'density': density.score,
-            'noise_classes': len(diff_set)  # Number of classes not included in any partition/cluster
             }
 
 
@@ -102,10 +90,8 @@ logging.info("Starting evaluation of grid of parameters...")
 
 model = Model(project_name, function=model_function)
 # specify uncertainties
-model.uncertainties = [IntegerParameter('resolution', 1, 100),
-                       IntegerParameter('alpha', 1, 100),
-                       IntegerParameter('mfuzzy', 2, 10),
-                       IntegerParameter('microservice_threshold', 2, 10)]
+model.uncertainties = [RealParameter('resolution', 0.1, 2),
+                       IntegerParameter('k', 1, len(nx_call_graph.nodes)), ]
 
 # specify outcomes
 model.outcomes = [ScalarOutcome('n_partitions'),

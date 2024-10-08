@@ -1,30 +1,21 @@
 import argparse
 
-import networkx as nx
 from ema_workbench import load_results
 import pandas as pd
-import pickle
 from tqdm import tqdm
 from scipy.spatial.distance import pdist, squareform
-from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from cdlib import evaluation
 from cdlib.classes import NodeClustering
 import pickle
-from cdlib import algorithms
-import scipy.spatial as spatial
 import numpy as np
-import os
-
 
 
 def compute_parameter_distances(experiments_df, columns=None, parameters=[], metric='cosine', scaling=True):
     scaler = None
     data = experiments_df[parameters].values
     scaled_data = data
-    # print(scaled_data.shape)
     if scaling:
-        # scaler = StandardScaler()
         scaler = MinMaxScaler()
         scaled_data = scaler.fit_transform(data)
 
@@ -33,8 +24,8 @@ def compute_parameter_distances(experiments_df, columns=None, parameters=[], met
         dist_df = pd.DataFrame(squareform(dist), columns=columns, index=columns)
     else:
         dist_df = pd.DataFrame(squareform(dist))
-    # print(dist_df.shape)
     return dist_df, scaler
+
 
 # Omega index indicates the similarity between two partitions
 # If omega = 1, the two partitions are identical (distance = 0), and omega = 0 (distance = 1) is the opposite case
@@ -47,23 +38,28 @@ def compute_omega_index(partition_i, partition_j, graph, distance=False):
     else:
         return evaluation.omega(clustering_i, clustering_j).score
 
+
 def get_noise_classes(partition, graph):
     reference_class_set = set(list(graph.nodes()))
     partition_class_set = set([x for xs in partition.values() for x in xs])
     difference_set = reference_class_set.difference(partition_class_set)
     return difference_set
 
+
 def update_partition_with_noise(partition, graph):
     noise_classes = get_noise_classes(partition, graph)
     if len(noise_classes) > 0:
-        partition[-1] = list(noise_classes) # -1 is the key for the noise classes
-    
+        partition[-1] = list(noise_classes)  # -1 is the key for the noise classes
+
     return partition
+
 
 """
 Por cada descomposición, busco aquellas que tengan una distance menor a p_step (valor de búsqueda binaria)
 Si TODAS las descomposiciones a una distancia menor a p_step son similares (mayor a sim_threshold), entonces 1
 """
+
+
 def check_experiments(distance_df, p_step, partitions_dict, sim_threshold=0.95, binary=True):
     count_experiments = []
     for exp in distance_df.columns:
@@ -83,12 +79,12 @@ def check_experiments(distance_df, p_step, partitions_dict, sim_threshold=0.95, 
                 all_valid_indices = False
                 break
         if all_valid_indices:
-            if binary:      
+            if binary:
                 count_experiments.append(1)
             else:
                 count_experiments.append(len(selected_indices))
         else:
-            #print("\t", exp, "indices so far (but discarded):", len(selected_indices))
+            # print("\t", exp, "indices so far (but discarded):", len(selected_indices))
             count_experiments.append(0)
     return count_experiments
 
@@ -96,11 +92,11 @@ def check_experiments(distance_df, p_step, partitions_dict, sim_threshold=0.95, 
 # Generate code for a binary search of a suitable parameter value within a continuous interval. 
 # The stopping criterion for the search is  given by an error threshold. 
 # The suitability of the parameter value is given by another function.
-def binary_search(distance_df, partitions_dict, threshold=0.95, max_trials=25, freq=5, 
-                  interval=(0.0,1.0), tolerance=0.0005, verbose=True):
+def binary_search(distance_df, partitions_dict, threshold=0.95, max_trials=25, freq=5,
+                  interval=(0.0, 1.0), tolerance=0.0005, verbose=True):
     if verbose:
         print("threshold=", threshold, " max_trials=", max_trials, " interval=", interval)
-    
+
     explored_exps = dict()
     left = interval[0]
     right = interval[1]
@@ -108,21 +104,22 @@ def binary_search(distance_df, partitions_dict, threshold=0.95, max_trials=25, f
     best_f = None
     best_mid = None
     mid = None
-    for n in tqdm(range(1, max_trials+1)):
-        if (abs(right-left) >= tolerance):
+    for n in tqdm(range(1, max_trials + 1)):
+        if (abs(right - left) >= tolerance):
             mid = (left + right) / 2
             if n % freq == 0:
                 if verbose:
                     print(n, "r=", mid, "...")
             f = check_experiments(distance_df, mid, partitions_dict, sim_threshold=threshold)
             f_sum = sum(f)
-            if f_sum == 0: # Mid point is not suitable yet
+            if f_sum == 0:  # Mid point is not suitable yet
                 right = mid
             else:
                 best_f = f
                 best_mid = mid
                 if verbose:
-                    print(n,"r=", mid, ", satisfying distance found!", "count=", f_sum, "coverage=", f_sum/len(partitions_dict))
+                    print(n, "r=", mid, ", satisfying distance found!", "count=", f_sum, "coverage=",
+                          f_sum / len(partitions_dict))
                     selected_exps = [col for idx, col in zip(best_f, distance_df.columns) if idx == 1]
                     for exp in selected_exps:
                         explored_exps[exp] = mid
@@ -139,7 +136,7 @@ def binary_search(distance_df, partitions_dict, threshold=0.95, max_trials=25, f
         return mid, best_f, []
     else:
         selected_exps = [col for idx, col in zip(best_f, distance_df.columns) if idx == 1]
-        return best_mid, sum(best_f)/len(partitions_dict), selected_exps, explored_exps
+        return best_mid, sum(best_f) / len(partitions_dict), selected_exps, explored_exps
 
 
 if __name__ == "__main__":
@@ -147,27 +144,6 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--project-name", help="Project name", required=True, type=str)
     parser.add_argument("-f", "--project-path", help="Project path", required=True, type=str)
 
-<<<<<<<< HEAD:microminer_eval/parameter_matrix.py
-GRAPH_FILENAME = "../jpetstore/jpetstore_128scenarios_nopolicies_sobol_graph.pkl"
-#GRAPH_FILENAME = "./cargo/cargo_128scenarios_nopolicies_sobol_graph.pkl"
-
-MODEL_FILENAME = '../jpetstore/jpetstore_128scenarios_nopolicies_sobol' #.tar.gz'
-#MODEL_FILENAME = './cargo/cargo_128scenarios_nopolicies_sobol' #.tar.gz'
-
-PARTITIONS_FILENAME = "../jpetstore/jpetstore_128scenarios_nopolicies_sobol_partitions.pkl"
-#PARTITIONS_FILENAME = "./cargo/cargo_128scenarios_nopolicies_sobol_partitions.pkl"
-
-DISTANCE_FILENAME = "../jpetstore/jpetstore_parameter_distances.csv"
-#DISTANCE_FILENAME = "./cargo/cargo_parameter_distances.csv"
-
-STABLE_SOLUTIONS_FILENAME = "../jpetstore/jpetstore_stable_solutions.pkl"
-#STABLE_SOLUTIONS_FILENAME = "./cargo/cargo_stable_solutions.pkl"
-
-df = pd.read_csv(f"../results/jpetstore/call_graph.csv").reset_index() # The original dataframe has the from and to columns as indices
-java_graph = nx.from_pandas_edgelist(df, source='from', target='to', create_using=nx.Graph(), edge_attr='weight')
-
-ALL_PARAMETERS = ['k',  'resolution']
-========
     arguments = parser.parse_args()
 
     project_name = arguments.project_name
@@ -175,63 +151,47 @@ ALL_PARAMETERS = ['k',  'resolution']
 
     GRAPH_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_graph.pkl"
 
-    MODEL_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol" #.tar.gz
+    MODEL_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol"  # .tar.gz
 
     PARTITIONS_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_partitions.pkl"
 
     DISTANCE_FILENAME = f"{project_path}/{project_name}_parameter_distances.csv"
 
     STABLE_SOLUTIONS_FILENAME = f"{project_path}/{project_name}_stable_solutions.pkl"
->>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/parameter_matrix.py
 
     java_graph = None
     with open(GRAPH_FILENAME, 'rb') as f:
-         java_graph = pickle.load(f)
+        java_graph = pickle.load(f)
 
-<<<<<<<< HEAD:microminer_eval/parameter_matrix.py
-# Creating labels for the experiments
-exp_labels = []
-for idx, row in experiments_df.iterrows():
-    lb = f"resolution_{row['resolution']:.9f}_k_{int(row['k'])}"
-    exp_labels.append(lb)
-# print(exp_labels)
-experiments_df.index = exp_labels
-print(experiments_df.head())
-========
-    ALL_PARAMETERS = ['alpha',  'mfuzzy',  'microservice_threshold',  'resolution']
->>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/parameter_matrix.py
+    ALL_PARAMETERS = ['k', 'resolution']
 
-    experiments_df, outcomes = load_results(MODEL_FILENAME+ '.tar.gz')
+    experiments_df, outcomes = load_results(MODEL_FILENAME + '.tar.gz')
     print(experiments_df.shape)
     experiments_df = experiments_df[ALL_PARAMETERS].drop_duplicates(keep='first')
     print(experiments_df.shape)
 
-<<<<<<<< HEAD:microminer_eval/parameter_matrix.py
-relevant_parameters = ['resolution', 'k'] # ['resolution'] # ALL_PARAMETERS
-# relevant_parameters = ['resolution', 'mfuzzy']
-========
     # Creating labels for the experiments
     exp_labels = []
     for idx, row in experiments_df.iterrows():
-        lb = 'resolution_'+str(row['resolution'])+'_alpha_'+str(row['alpha'])+'_mfuzzy_'+str(row['mfuzzy'])+'_mthreshold_'+str(row['microservice_threshold'])
+        lb = 'resolution_' + str(row['resolution']) + '_k_' + str(row['k'])
         exp_labels.append(lb)
     experiments_df.index = exp_labels
     print(experiments_df.head())
->>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/parameter_matrix.py
 
     partitions_dict = None
     with open(PARTITIONS_FILENAME, 'rb') as f:
-         partitions_dict = pickle.load(f)
+        partitions_dict = pickle.load(f)
     print("partitions:", len(partitions_dict))
     key_0 = list(partitions_dict.keys())[10]
     print(key_0)
 
-    relevant_parameters = ['resolution', 'mfuzzy', 'microservice_threshold'] # ['resolution'] # ALL_PARAMETERS
-    # relevant_parameters = ['resolution', 'mfuzzy']
+    relevant_parameters = ['resolution', 'k']  # ['resolution'] # ALL_PARAMETERS
+    #  relevant_parameters = ['resolution', 'mfuzzy']
 
     print("Computing parameter distances ...", relevant_parameters)
-    distances_df, scaler = compute_parameter_distances(experiments_df, experiments_df.index, parameters=relevant_parameters,
-                                            metric='euclidean', scaling=True)
+    distances_df, scaler = compute_parameter_distances(experiments_df, experiments_df.index,
+                                                       parameters=relevant_parameters,
+                                                       metric='euclidean', scaling=True)
     print(distances_df.shape)
 
     distances_df.to_csv(DISTANCE_FILENAME)
@@ -246,25 +206,26 @@ relevant_parameters = ['resolution', 'k'] # ['resolution'] # ALL_PARAMETERS
     print("Binary search ...")
     t = 0.95
     print("-->", t)
-    radius, coverage, configs, explored_configs = binary_search(distances_df, partitions_dict, threshold=t, verbose=True, tolerance=0.005)
+    radius, coverage, configs, explored_configs = binary_search(distances_df, partitions_dict, threshold=t,
+                                                                verbose=True, tolerance=0.005)
     print("Max radius:", radius, "Coverage of configurations:", coverage)
     print(len(configs), configs)
-    print(len(explored_configs), "explored configurations") #, explored_configs)
+    print(len(explored_configs), "explored configurations")  # , explored_configs)
     print()
 
-    step = np.array([radius]*len(relevant_parameters))
+    step = np.array([radius] * len(relevant_parameters))
     print("Denormalization for radius=", radius, scaler.inverse_transform(step.reshape(1, -1))[0], relevant_parameters)
 
     print("done.")
 
     # Test with a fixed radius
     print()
-    test = 0.24 #0.12
+    test = 0.24  # 0.12
     f = check_experiments(distances_df, test, partitions_dict, sim_threshold=t)
     f_sum = sum(f)
-    print(test, "Count:", f_sum, "Coverage:", f_sum/len(partitions_dict))
+    print(test, "Count:", f_sum, "Coverage:", f_sum / len(partitions_dict))
     selected_exps = [col for idx, col in zip(f, distances_df.columns) if idx == 1]
-    for exp in selected_exps: # It adds additional configurations
+    for exp in selected_exps:  # It adds additional configurations
         if exp not in explored_configs.keys():
             explored_configs[exp] = test
     with open(STABLE_SOLUTIONS_FILENAME, 'wb') as output:
