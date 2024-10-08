@@ -1,14 +1,9 @@
-
-
-import networkx as nx
+import argparse
 from cdlib import evaluation
 from cdlib.classes import NodeClustering
 import pickle
-from cdlib import algorithms
 from tqdm import tqdm
 import pandas as pd
-import scipy.spatial as spatial
-import numpy as np
 import os
 
 def get_noise_classes(partition, java_graph):
@@ -62,9 +57,6 @@ def compute_indices(partitions_dict, graph, distance=False, metric="omega", incl
                         partition_j = list(partitions_dict[j].values()) + [list(noise_classes_j)]
                     else:
                         partition_j = list(partitions_dict[j].values())
-                    # print(i, j, len(noise_classes_i), len(noise_classes_j))
-                    # print(partition_i)
-                    # print(partition_j)
 
                     clustering_j = NodeClustering(communities=partition_j, graph=graph, overlap=True)
                     value = None
@@ -87,8 +79,7 @@ def compute_indices(partitions_dict, graph, distance=False, metric="omega", incl
                     omega_scores[i][j] = value
         
             if checkpoint is not None: # Write the whole row
-                with open(checkpoint, 'wb') as f:  # open 
-                    # print("Checkpoint saved:", i)
+                with open(checkpoint, 'wb') as f:  # open
                     pickle.dump(omega_scores, f) # serialize the dict
                     f.close()
     
@@ -101,9 +92,14 @@ def compute_indices(partitions_dict, graph, distance=False, metric="omega", incl
     omega_scores_df = pd.DataFrame(omega_scores)
     return omega_scores_df
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--project-name", help="Project name", required=True, type=str)
+    parser.add_argument("-f", "--project-path", help="Project path", required=True, type=str)
 
-#--------------------------------------------------------
+    arguments = parser.parse_args()
 
+<<<<<<<< HEAD:microminer_eval/partition_matrix.py
 df = pd.read_csv(f"../results/jpetstore/call_graph.csv").reset_index() # The original dataframe has the from and to columns as indices
 java_graph = nx.from_pandas_edgelist(df, source='from', target='to', create_using=nx.Graph(), edge_attr='weight')
 
@@ -115,11 +111,25 @@ with open(PARTITIONS_FILENAME, 'rb') as f:
 print("partitions:", len(partitions_dict))
 key_0 = list(partitions_dict.keys())[10]
 print(partitions_dict[key_0])
+========
+    project_name = arguments.project_name
+    project_path = arguments.project_path
 
-partitions_similarity_df = compute_indices(partitions_dict, java_graph, metric="omega", 
-                                           include_noise=False, checkpoint="temporal.pkl")
-print(partitions_similarity_df.shape)
+    GRAPH_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_graph.pkl"
+    java_graph = None
+    with open(GRAPH_FILENAME, 'rb') as f:
+         java_graph = pickle.load(f)
+>>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/partition_matrix.py
 
+    PARTITIONS_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_partitions.pkl"
+    partitions_dict = None
+    with open(PARTITIONS_FILENAME, 'rb') as f:
+         partitions_dict = pickle.load(f)
+    print("partitions:", len(partitions_dict))
+    key_0 = list(partitions_dict.keys())[10]
+    print(partitions_dict[key_0])
+
+<<<<<<<< HEAD:microminer_eval/partition_matrix.py
 SIMILARITY_FILENAME = "../jpetstore/jpetstore_omega_scores.csv"
 # SIMILARITY_FILENAME = "./jpetstore/jpetstore_omega_scores_noise.csv"
 # SIMILARITY_FILENAME = "./cargo/cargo_omega_scores.csv"
@@ -127,3 +137,12 @@ SIMILARITY_FILENAME = "../jpetstore/jpetstore_omega_scores.csv"
 # SIMILARITY_FILENAME = "./jpetstore/jpetstore_milfk_scores.csv"
 # SIMILARITY_FILENAME = "./jpetstore/jpetstore_mimgh_scores.csv"
 partitions_similarity_df.to_csv(SIMILARITY_FILENAME)
+========
+    partitions_similarity_df = compute_indices(partitions_dict, java_graph, metric="omega",
+                                               include_noise=False, checkpoint="temporal.pkl")
+    print(partitions_similarity_df.shape)
+
+    SIMILARITY_FILENAME = f"{project_path}/{project_name}_omega_scores.csv"
+
+    partitions_similarity_df.to_csv(SIMILARITY_FILENAME)
+>>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/partition_matrix.py

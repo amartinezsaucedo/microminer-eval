@@ -22,3 +22,16 @@ Example
 ```bash
 python microminer_eval/main.py -p "Cargo Tracking" -f ../cargo
 ```
+
+# EMAT
+```bash
+python microminer_eval/main_emat.py -p "jpetstore" -f ./jpetstore
+```
+
+```bash
+python microminer_eval/partition_matrix.py -p "jpetstore" -f ./jpetstore
+```
+
+```bash
+python microminer_eval/parameter_matrix.py -p "jpetstore" -f ./jpetstore
+```

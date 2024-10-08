@@ -1,3 +1,5 @@
+import argparse
+
 import networkx as nx
 from ema_workbench import load_results
 import pandas as pd
@@ -58,6 +60,10 @@ def update_partition_with_noise(partition, graph):
     
     return partition
 
+"""
+Por cada descomposición, busco aquellas que tengan una distance menor a p_step (valor de búsqueda binaria)
+Si TODAS las descomposiciones a una distancia menor a p_step son similares (mayor a sim_threshold), entonces 1
+"""
 def check_experiments(distance_df, p_step, partitions_dict, sim_threshold=0.95, binary=True):
     count_experiments = []
     for exp in distance_df.columns:
@@ -136,8 +142,12 @@ def binary_search(distance_df, partitions_dict, threshold=0.95, max_trials=25, f
         return best_mid, sum(best_f)/len(partitions_dict), selected_exps, explored_exps
 
 
-#--------------------------------------------------------
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--project-name", help="Project name", required=True, type=str)
+    parser.add_argument("-f", "--project-path", help="Project path", required=True, type=str)
 
+<<<<<<<< HEAD:microminer_eval/parameter_matrix.py
 GRAPH_FILENAME = "../jpetstore/jpetstore_128scenarios_nopolicies_sobol_graph.pkl"
 #GRAPH_FILENAME = "./cargo/cargo_128scenarios_nopolicies_sobol_graph.pkl"
 
@@ -157,12 +167,28 @@ df = pd.read_csv(f"../results/jpetstore/call_graph.csv").reset_index() # The ori
 java_graph = nx.from_pandas_edgelist(df, source='from', target='to', create_using=nx.Graph(), edge_attr='weight')
 
 ALL_PARAMETERS = ['k',  'resolution']
+========
+    arguments = parser.parse_args()
 
-experiments_df, outcomes = load_results(MODEL_FILENAME+ '.tar.gz')
-print(experiments_df.shape)
-experiments_df = experiments_df[ALL_PARAMETERS].drop_duplicates(keep='first')
-print(experiments_df.shape)
+    project_name = arguments.project_name
+    project_path = arguments.project_path
 
+    GRAPH_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_graph.pkl"
+
+    MODEL_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol" #.tar.gz
+
+    PARTITIONS_FILENAME = f"{project_path}/{project_name}_128scenarios_nopolicies_sobol_partitions.pkl"
+
+    DISTANCE_FILENAME = f"{project_path}/{project_name}_parameter_distances.csv"
+
+    STABLE_SOLUTIONS_FILENAME = f"{project_path}/{project_name}_stable_solutions.pkl"
+>>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/parameter_matrix.py
+
+    java_graph = None
+    with open(GRAPH_FILENAME, 'rb') as f:
+         java_graph = pickle.load(f)
+
+<<<<<<<< HEAD:microminer_eval/parameter_matrix.py
 # Creating labels for the experiments
 exp_labels = []
 for idx, row in experiments_df.iterrows():
@@ -171,65 +197,75 @@ for idx, row in experiments_df.iterrows():
 # print(exp_labels)
 experiments_df.index = exp_labels
 print(experiments_df.head())
+========
+    ALL_PARAMETERS = ['alpha',  'mfuzzy',  'microservice_threshold',  'resolution']
+>>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/parameter_matrix.py
 
-partitions_dict = None
-with open(PARTITIONS_FILENAME, 'rb') as f:
-     partitions_dict = pickle.load(f)
-print("partitions:", len(partitions_dict))
-key_0 = list(partitions_dict.keys())[10]
-# print(partitions_dict[key_0])
-print(key_0)
+    experiments_df, outcomes = load_results(MODEL_FILENAME+ '.tar.gz')
+    print(experiments_df.shape)
+    experiments_df = experiments_df[ALL_PARAMETERS].drop_duplicates(keep='first')
+    print(experiments_df.shape)
 
+<<<<<<<< HEAD:microminer_eval/parameter_matrix.py
 relevant_parameters = ['resolution', 'k'] # ['resolution'] # ALL_PARAMETERS
 # relevant_parameters = ['resolution', 'mfuzzy']
+========
+    # Creating labels for the experiments
+    exp_labels = []
+    for idx, row in experiments_df.iterrows():
+        lb = 'resolution_'+str(row['resolution'])+'_alpha_'+str(row['alpha'])+'_mfuzzy_'+str(row['mfuzzy'])+'_mthreshold_'+str(row['microservice_threshold'])
+        exp_labels.append(lb)
+    experiments_df.index = exp_labels
+    print(experiments_df.head())
+>>>>>>>> a8f40a84e87310ee08799e190a9a6eb2185ac354:microminer_eval/stability_analysis/parameter_matrix.py
 
-print("Computing parameter distances ...", relevant_parameters)
-distances_df, scaler = compute_parameter_distances(experiments_df, experiments_df.index, parameters=relevant_parameters,
-                                        metric='euclidean', scaling=True)
-print(distances_df.shape)
+    partitions_dict = None
+    with open(PARTITIONS_FILENAME, 'rb') as f:
+         partitions_dict = pickle.load(f)
+    print("partitions:", len(partitions_dict))
+    key_0 = list(partitions_dict.keys())[10]
+    print(key_0)
 
-distances_df.to_csv(DISTANCE_FILENAME)
-# distances_df = pd.read_csv(DISTANCE_FILENAME, index_col=0)
+    relevant_parameters = ['resolution', 'mfuzzy', 'microservice_threshold'] # ['resolution'] # ALL_PARAMETERS
+    # relevant_parameters = ['resolution', 'mfuzzy']
 
-distance_np = np.tril(distances_df).flatten()
-min_non_zero = np.min(distance_np[np.nonzero(distance_np)])
-print("min-max distances:", min_non_zero, distance_np.max())
-print(distances_df.max().max())
+    print("Computing parameter distances ...", relevant_parameters)
+    distances_df, scaler = compute_parameter_distances(experiments_df, experiments_df.index, parameters=relevant_parameters,
+                                            metric='euclidean', scaling=True)
+    print(distances_df.shape)
 
-print()
-# Test the binary search
-print("Binary search ...")
-# for t in range(50,96,5):
-#     print("-->", (t/100.0))
-#     radius, coverage, configs = binary_search(distances_df, partitions_dict, threshold=t/100.0, 
-#                                           max_trials=50, tolerance=0.0001, verbose=False)
-#     # print()
-#     print("Max radius:", radius, "Coverage of configurations:", coverage)
-#     print(len(configs), configs)
+    distances_df.to_csv(DISTANCE_FILENAME)
 
-t = 0.95
-print("-->", t)
-radius, coverage, configs, explored_configs = binary_search(distances_df, partitions_dict, threshold=t, verbose=True, tolerance=0.005)
-print("Max radius:", radius, "Coverage of configurations:", coverage)
-print(len(configs), configs)
-print(len(explored_configs), "explored configurations") #, explored_configs)
-print()
+    distance_np = np.tril(distances_df).flatten()
+    min_non_zero = np.min(distance_np[np.nonzero(distance_np)])
+    print("min-max distances:", min_non_zero, distance_np.max())
+    print(distances_df.max().max())
 
-step = np.array([radius]*len(relevant_parameters))
-print("Denormalization for radius=", radius, scaler.inverse_transform(step.reshape(1, -1))[0], relevant_parameters)
-    
-print("done.")
+    print()
+    # Test the binary search
+    print("Binary search ...")
+    t = 0.95
+    print("-->", t)
+    radius, coverage, configs, explored_configs = binary_search(distances_df, partitions_dict, threshold=t, verbose=True, tolerance=0.005)
+    print("Max radius:", radius, "Coverage of configurations:", coverage)
+    print(len(configs), configs)
+    print(len(explored_configs), "explored configurations") #, explored_configs)
+    print()
 
-# Test with a fixed radius
-print()
-test = 0.24 #0.12
-f = check_experiments(distances_df, test, partitions_dict, sim_threshold=t)
-f_sum = sum(f)
-print(test, "Count:", f_sum, "Coverage:", f_sum/len(partitions_dict))
-selected_exps = [col for idx, col in zip(f, distances_df.columns) if idx == 1]
-for exp in selected_exps: # It adds additional configurations
-    if exp not in explored_configs.keys():
-        explored_configs[exp] = test
-with open(STABLE_SOLUTIONS_FILENAME, 'wb') as output:
-    pickle.dump(explored_configs, output)
-# print(explored_configs)
+    step = np.array([radius]*len(relevant_parameters))
+    print("Denormalization for radius=", radius, scaler.inverse_transform(step.reshape(1, -1))[0], relevant_parameters)
+
+    print("done.")
+
+    # Test with a fixed radius
+    print()
+    test = 0.24 #0.12
+    f = check_experiments(distances_df, test, partitions_dict, sim_threshold=t)
+    f_sum = sum(f)
+    print(test, "Count:", f_sum, "Coverage:", f_sum/len(partitions_dict))
+    selected_exps = [col for idx, col in zip(f, distances_df.columns) if idx == 1]
+    for exp in selected_exps: # It adds additional configurations
+        if exp not in explored_configs.keys():
+            explored_configs[exp] = test
+    with open(STABLE_SOLUTIONS_FILENAME, 'wb') as output:
+        pickle.dump(explored_configs, output)
