@@ -106,7 +106,7 @@ class Clustering:
             if val not in clusters:
                 clusters[val] = []
 
-            clusters[val].append(f"{nodes[index].split('.')[-1]}.java")
+            clusters[val].append(nodes[index])
 
         print(f"Total Clusters: {len(clusters)}")
 

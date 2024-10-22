@@ -36,8 +36,7 @@ model_path = arguments.model_path
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-df = pd.read_csv(f"../results/{project_name}/call_graph.csv").reset_index() # The original dataframe has the from and to columns as indices
-nx_call_graph = nx.from_pandas_edgelist(df, source='from', target='to', create_using=nx.Graph(), edge_attr='weight')
+nx_call_graph = pickle.load(open(f"../{project_name}/graph.pickle", 'rb'))
 
 
 results = []
@@ -69,7 +68,7 @@ def model_function(resolution, k):
 
     s = convert_to_key(resolution, k)
     all_partitions[s] = partitions  # Store the partitions for later use
-    n_clustering = NodeClustering(communities=list(partitions.values()), graph=nx_call_graph, overlap=True)
+    n_clustering = NodeClustering(communities=list(partitions.values()), graph=nx_call_graph, overlap=False)
     modularity = evaluation.newman_girvan_modularity(nx_call_graph, n_clustering)
     ned_score = ned(partitions)
     density = evaluation.scaled_density(nx_call_graph, n_clustering)
