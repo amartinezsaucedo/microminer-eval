@@ -1,0 +1,29 @@
+,Queries,Answers,References,Correctness score,Correctness passing,Semantic similarity score,Semantic similarity passing
+0,How can I visualize the decomposition space for a microservices migration project?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+1,Can you show me the decomposition space graphically for a better understanding?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+2,What are the different decompositions generated in the decomposition space?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+3,How can I get all decompositions graphically for a comparative analysis?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+4,What does the decomposition space look like graphically?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+5,Can you provide a graphical representation of the decomposition space?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+6,How can I understand the decomposition space graphically?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+7,What is the graphical representation of the decomposition space?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+8,Can you show me the decomposition space graphically for a presentation?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+9,How can I visualize the decomposition space for a report?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+10,What does the graphical representation of the decomposition space look like?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+11,Can you provide a graphical representation of the decomposition space for a meeting?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+12,How can I get a graphical representation of the decomposition space?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+13,What is the graphical representation of the decomposition space for a presentation?,None,get_decomposition_space,1.0,False,0.5429498978543514,False
+14,How can I find the top 5 decompositions with the highest modularity in a graphical representation?,None,"get_decomposition_by_metric(k=5, metric=""modularity"", asc=False, show_plot=True)",1.0,False,0.5545920955072099,False
+15,What are the bottom 3 decompositions with the lowest density?,None,"get_decomposition_by_metric(k=3, metric=""density"", asc=True, show_plot=False)",1.0,False,0.561304915245324,False
+16,Which decomposition has the highest stability?,None,"get_decomposition_by_metric(k=1, metric=""stability"", asc=False, show_plot=False)",1.0,False,0.548140116620493,False
+17,Can you show me the top 2 decompositions with the highest number of partitions in a graphical representation?,None,"get_decomposition_by_metric(k=2, metric=""n_partitions"", asc=False, show_plot=True)",1.0,False,0.5443094353873594,False
+18,What are the top 4 decompositions with the lowest NED?,None,"get_decomposition_by_metric(k=4, metric=""ned"", asc=True, show_plot=False)",1.0,False,0.5510832802144539,False
+19,Which decomposition has the lowest NED?,None,"get_decomposition_by_metric(k=1, metric=""ned"", asc=True, show_plot=False)",1.0,False,0.5539098373592672,False
+20,How can I find the top 3 decompositions with the highest modularity without a graphical representation?,None,"get_decomposition_by_metric(k=3, metric=""modularity"", asc=False, show_plot=False)",1.0,False,0.5485968504435279,False
+21,What are the bottom 2 decompositions with the lowest stability?,None,"get_decomposition_by_metric(k=2, metric=""stability"", asc=True, show_plot=False)",1.0,False,0.5419587441657852,False
+22,Can you show me the top decomposition with the highest density in a graphical representation?,None,"get_decomposition_by_metric(k=1, metric=""density"", asc=False, show_plot=True)",1.0,False,0.5611079639256998,False
+23,Which decomposition has the highest density?,None,"get_decomposition_by_metric(k=1, metric=""density"", asc=False, show_plot=False)",1.0,False,0.5602052862479816,False
+24,How can I find the top 2 decompositions with the highest number of partitions without a graphical representation?,None,"get_decomposition_by_metric(k=2, metric=""n_partitions"", asc=False, show_plot=False)",1.0,False,0.5427830095417189,False
+25,What are the top 5 decompositions with the lowest modularity?,None,"get_decomposition_by_metric(k=5, metric=""modularity"", asc=True, show_plot=False)",1.0,False,0.5537926674024836,False
+26,Which decomposition has the lowest modularity?,None,"get_decomposition_by_metric(k=1, metric=""modularity"", asc=True, show_plot=False)",1.0,False,0.5485975422698076,False
+27,Can you show me the top 3 decompositions with the lowest NED in a graphical representation?,None,"get_decomposition_by_metric(k=3, metric=""ned"", asc=True, show_plot=True)",1.0,False,0.5545671564737071,False
