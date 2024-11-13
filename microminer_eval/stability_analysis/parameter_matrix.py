@@ -31,8 +31,8 @@ def compute_parameter_distances(experiments_df, columns=None, parameters=[], met
 # If omega = 1, the two partitions are identical (distance = 0), and omega = 0 (distance = 1) is the opposite case
 # Thus, omega works as a similarity index
 def compute_omega_index(partition_i, partition_j, graph, distance=False):
-    clustering_i = NodeClustering(communities=list(partition_i.values()), graph=graph, overlap=True)
-    clustering_j = NodeClustering(communities=list(partition_j.values()), graph=graph, overlap=True)
+    clustering_i = NodeClustering(communities=list(partition_i.values()), graph=graph, overlap=False)
+    clustering_j = NodeClustering(communities=list(partition_j.values()), graph=graph, overlap=False)
     if distance:
         return 1 - evaluation.omega(clustering_i, clustering_j).score
     else:

@@ -17,8 +17,8 @@ def get_noise_classes(partition, java_graph):
 # If omega = 1, the two partitions are identical (distance = 0), and omega = 0 (distance = 1) is the opposite case
 # Thus, omega works as a similarity index
 def compute_omega_index(partition_i, partition_j, graph, distance=False):
-    clustering_i = NodeClustering(communities=list(partition_i.values()), graph=graph, overlap=True)
-    clustering_j = NodeClustering(communities=list(partition_j.values()), graph=graph, overlap=True)
+    clustering_i = NodeClustering(communities=list(partition_i.values()), graph=graph, overlap=False)
+    clustering_j = NodeClustering(communities=list(partition_j.values()), graph=graph, overlap=False)
     if distance:
         return 1 - evaluation.omega(clustering_i, clustering_j).score
     else:
@@ -45,7 +45,7 @@ def compute_indices(partitions_dict, graph, distance=False, metric="omega", incl
                 partition_i = list(partitions_dict[i].values()) + [list(noise_classes_i)]
             else:
                 partition_i = list(partitions_dict[i].values())
-            clustering_i = NodeClustering(communities=partition_i, graph=graph, overlap=True)
+            clustering_i = NodeClustering(communities=partition_i, graph=graph, overlap=False)
 
             for n, j in enumerate(partitions_dict.keys()):
                 if n < m:
@@ -58,7 +58,7 @@ def compute_indices(partitions_dict, graph, distance=False, metric="omega", incl
                     else:
                         partition_j = list(partitions_dict[j].values())
 
-                    clustering_j = NodeClustering(communities=partition_j, graph=graph, overlap=True)
+                    clustering_j = NodeClustering(communities=partition_j, graph=graph, overlap=False)
                     value = None
                     if metric == "omega":
                         value = evaluation.omega(clustering_i, clustering_j).score
